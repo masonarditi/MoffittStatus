@@ -1,285 +1,152 @@
 "use client";
 
-import { Slider } from "@/components/ui/slider"
-
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  // FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-
-const formSchema = z.object({
-  floor: z.string().min(2, {
-    message: "Floor must be at least 2 characters.",
-  }),
-  busyScale: z.string().min(1, {
-    message: "Please provide a busy scale rating.",
-  }),
-});
-
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import { useEffect, useState } from 'react';
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { LineChart, CartesianGrid, Line, XAxis } from "recharts";
 import { AcademicCapIcon } from "@heroicons/react/24/outline";
+import { TrendingUp } from "lucide-react";
+
+type FloorData = {
+  floor: string;
+  busyScale: number;
+  timeStamp: string;
+};
 
 const chartData = [
-  { month: "12p", desktop: 186 },
-  { month: "3p", desktop: 305 },
-  { month: "6p", desktop: 237 },
-  { month: "9p", desktop: 73 },
-  { month: "12a", desktop: 214 },
+  { hour: "9a", capacity: 186 },
+  { hour: "12p", capacity: 287 },
+  { hour: "3p", capacity: 305 },
+  { hour: "6p", capacity: 237 },
+  { hour: "9p", capacity: 287 },
+  { hour: "12a", capacity: 214 },
 ];
 
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
-  },
-} satisfies ChartConfig;
+export default function HomePage() {
+  const [floorData, setFloorData] = useState<FloorData[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
 
-export default function Home() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      floor: "",
-    },
-  });
+  const fetchStatusUpdates = async () => {
+    try {
+      const response = await fetch("/api/saveData", { method: "GET" });
+      if (response.ok) {
+        const data = await response.json();
+        setFloorData(data);
+        updateLastUpdatedTime(data);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    console.log("dsdsdsdsd")
-    console.log(values);
-  }
+  const updateLastUpdatedTime = (data: FloorData[]) => {
+    if (data.length === 0) {
+      setLastUpdated("No updates yet");
+      return;
+    }
+
+    const mostRecentUpdate = data
+      .sort((a, b) => new Date(b.timeStamp).getTime() - new Date(a.timeStamp).getTime())[0];
+    const updateTime = new Date(mostRecentUpdate.timeStamp).getTime();
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const secondsAgo = Math.floor((now - updateTime) / 1000);
+
+      let displayTime;
+      if (secondsAgo < 300) {
+        displayTime = "updated just now";
+      } else if (secondsAgo < 3600) {
+        displayTime = `${Math.floor(secondsAgo / 60)} minutes ago`;
+      } else if (secondsAgo < 86400) {
+        displayTime = `${Math.floor(secondsAgo / 3600)} hours ago`;
+      } else {
+        displayTime = `${Math.floor(secondsAgo / 86400)} days ago`;
+      }
+
+      setLastUpdated(displayTime);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  };
+
+  useEffect(() => {
+    fetchStatusUpdates();
+    const interval = setInterval(fetchStatusUpdates, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getProgressValue = (floor: string) => {
+    const floorEntries = floorData
+      .filter((entry) => entry.floor === floor)
+      .sort((a, b) => new Date(b.timeStamp).getTime() - new Date(a.timeStamp).getTime());
+
+    const latestEntry = floorEntries[0];
+    return latestEntry ? Number(latestEntry.busyScale) * 20 : 0;
+  };
 
   return (
-    <div>
-      {/* Title and Cap Icon */}
-      <div className="flex items-center ml-5 mt-5">
-        <AcademicCapIcon className="h-6 w-6 text-primary-500 mr-2" />
-        <h1 className="font-bold text-2xl">MoffittStatus</h1>
+    <div className="container mx-auto px-8 py-10">
+      {/* Header with Icon */}
+      <div className="flex items-center mb-10">
+        <AcademicCapIcon className="h-8 w-8 text-primary-500 mr-4" />
+        <h1 className="text-4xl font-bold">MoffittStatus</h1>
       </div>
 
-      {/* Main Content Layout */}
-      <div className="flex flex-col md:flex-row w-full h-full mt-8 items-start">
-
+      <div className="flex gap-8">
         {/* Left 1/3: Chart */}
-        <div className="w-full md:w-1/3 p-2">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Moffitt Capacity</CardTitle>
-              <CardDescription>12pm - 12am</CardDescription>
+        <div className="w-1/3">
+          <Card className="shadow-lg h-full">
+            <CardHeader className="p-6">
+              <CardTitle className="text-2xl font-semibold">Moffitt Capacity</CardTitle>
+              <CardDescription className="text-gray-500">{lastUpdated}</CardDescription>
             </CardHeader>
             <CardContent>
-              <ChartContainer config={chartConfig}>
-                <LineChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{ left: 12, right: 12 }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <Line
-                    dataKey="desktop"
-                    type="natural"
-                    stroke="var(--color-desktop)"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ChartContainer>
+              <LineChart
+                width={300}
+                height={300}
+                data={chartData}
+                margin={{ top: 0, right: 40, bottom: 5, left: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" />
+                <Line type="monotone" dataKey="capacity" stroke="#8884d8" strokeWidth={2} />
+              </LineChart>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
-              <div className="flex gap-2 font-medium leading-none">
-                Trending up by 5.2% this week <TrendingUp className="h-4 w-4" />
-              </div>
-              <div className="leading-none text-muted-foreground">
-                Showing capacity level for the last 12 hours
-              </div>
-            </CardFooter>
           </Card>
         </div>
 
-        {/* Middle 1/3: Floor Breakdown and Recommendations */}
-        <div className="w-full md:w-1/3 p-2 flex flex-col">
-          <Card className="mb-6">
-            <CardTitle className="ml-5 mt-5 mb-2">Floor Breakdown</CardTitle>
-            <CardDescription className="ml-5 mb-3">Last updated 10 mins ago</CardDescription>
-            <CardContent>
-              <div className="flex items-center w-full mb-3">
-                <span className="mr-4 w-16 text-right">Floor 1</span>
-                <Progress className="w-full" value={10} />
-              </div>
-              <div className="flex items-center w-full mb-3">
-                <span className="mr-4 w-16 text-right">Floor 3</span>
-                <Progress className="w-full" value={57} />
-              </div>
-              <div className="flex items-center w-full mb-3">
-                <span className="mr-4 w-16 text-right">Floor 4</span>
-                <Progress className="w-full" value={98} />
-              </div>
-              <div className="flex items-center w-full mb-3">
-                <span className="mr-4 w-16 text-right">Floor 5</span>
-                <Progress className="w-full" value={83} />
-              </div>
+        {/* Right 2/3: Progress Bars and Recommendation */}
+        <div className="w-2/3 flex flex-col gap-6">
+          {/* Progress Bars */}
+          <Card className="shadow-lg flex-grow">
+            <CardHeader className="p-6">
+              <CardTitle className="text-2xl font-semibold">Floor Breakdown</CardTitle>
+              <CardDescription className="text-gray-500">{lastUpdated}</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {["1", "3", "4", "5"].map((floor) => (
+                <div key={floor} className="flex items-center">
+                  <span className="w-24 text-right font-medium">{`Floor ${floor}`}</span>
+                  <Progress className="flex-1 ml-4" value={getProgressValue(floor)} />
+                </div>
+              ))}
             </CardContent>
           </Card>
 
           {/* Recommendations */}
-          <Card>
-            <CardTitle className="mt-5 ml-6 mr-5">Recommendation</CardTitle>
-            <CardDescription className="font-bold ml-6 mt-2">Haas or Doe</CardDescription>
-            <CardContent>
-              <CardDescription className="mt-2">
-                If you are solo, then Floor 1 should be good.
-              </CardDescription>
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold">Recommendation</CardTitle>
+            </CardHeader>
+            <CardContent className="text-lg">
+              <p>If you are solo, Floor 1 should be a good choice!</p>
+              <p>Need a quieter space? Try the upper floors.</p>
             </CardContent>
           </Card>
         </div>
-
-        {/* Right 1/3: Form */}
-        <div className="w-full md:w-1/3 p-2">
-          <Card className="rounded-lg border border-gray-200 bg-white p-6">
-            <CardTitle className="mb-3">Submit an Update</CardTitle><Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <FormField
-                  control={form.control}
-                  name="floor"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>What floor are you on?</FormLabel>
-                      <FormControl>
-                        <div className="flex space-x-2">
-                          <Button
-                            type="button"
-                            className={`px-4 py-2 rounded-md ${
-                              field.value === "1" ? "bg-gray-500 text-white" : "bg-black text-white"
-                            }`}
-                            onClick={() => field.onChange("1")}
-                          >
-                            Floor 1
-                          </Button>
-                          <Button
-                            type="button"
-                            className={`px-4 py-2 rounded-md ${
-                              field.value === "3" ? "bg-gray-500 text-white" : "bg-black text-white"
-                            }`}
-                            onClick={() => field.onChange("3")}
-                          >
-                            Floor 3
-                          </Button>
-                          <Button
-                            type="button"
-                            className={`px-4 py-2 rounded-md ${
-                              field.value === "4" ? "bg-gray-500 text-white" : "bg-black text-white"
-                            }`}
-                            onClick={() => field.onChange("4")}
-                          >
-                            Floor 4
-                          </Button>
-                          <Button
-                            type="button"
-                            className={`px-4 py-2 rounded-md ${
-                              field.value === "5" ? "bg-gray-500 text-white" : "bg-black text-white"
-                            }`}
-                            onClick={() => field.onChange("5")}
-                          >
-                            Floor 5
-                          </Button>
-                        </div>
-                      </FormControl>
-
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="busyScale"
-                  render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>How busy is it? (1-5)</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        {/* Slider with basic functionality */}
-                        <Slider
-                          value={[Number(field.value)]} // Ensure value is a number
-                          min={1}
-                          max={5}
-                          step={1}
-                          defaultValue={[3]}
-                          onValueChange={(value) => field.onChange(String(value[0]))} // Update form field with string
-                          className="w-full"
-                        />
-                        {/* Dynamic Status */}
-                        <div className="mt-4 text-sm text-gray-600">
-                          <strong>Status:</strong>{" "}
-                          {Number(field.value) === 1 && "Wide Open"}
-                          {Number(field.value) === 2 && "Not Too Busy"}
-                          {Number(field.value) === 3 && "Kinda Busy"}
-                          {Number(field.value) === 4 && "Very Busy"}
-                          {Number(field.value) === 5 && "Extremely Busy"}
-                        </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-
-
-
-                  )}
-                />
-                <Button
-                  type="submit"
-                  className="mt-4 w-full bg-black text-white py-2 px-4 rounded-md hover:bg-grey-500"
-                >
-                  Submit
-                </Button>
-              </form>
-            </Form>
-          </Card>
-        </div>
-      </div>
-
-      {/* Bottom-Centered Text */}
-      <div className="mt-8 flex justify-center">
-        <p className="text-center text-sm">
-          follow us on{" "}
-          <a
-            href="https://www.instagram.com/moffittstatus"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
-          >
-            instagram
-          </a>{" "}
-        </p>
       </div>
     </div>
+    
   );
 }

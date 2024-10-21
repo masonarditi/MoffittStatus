@@ -18,5 +18,150 @@
     "floor": "5",
     "busyScale": "1",
     "timeStamp": "2024-10-17T01:13:24.041Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "3",
+    "timeStamp": "2024-10-17T06:52:27.511Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-17T06:53:54.332Z"
+  },
+  {
+    "floor": "4",
+    "busyScale": "2",
+    "timeStamp": "2024-10-17T06:56:13.721Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T20:51:47.231Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:04:49.301Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:05:29.979Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:05:48.750Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:05:52.740Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:06:01.245Z"
+  },
+  {
+    "floor": "3",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:06:16.793Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:09:52.346Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:10:03.979Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:10:12.516Z"
+  },
+  {
+    "floor": "4",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:10:24.926Z"
+  },
+  {
+    "floor": "3",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:10:34.511Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:10:39.573Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:10:46.413Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:10:52.613Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:12:19.044Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:15:29.804Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:16:09.425Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T21:31:03.857Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "1",
+    "timeStamp": "2024-10-20T21:31:15.603Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "5",
+    "timeStamp": "2024-10-20T23:53:09.038Z"
+  },
+  {
+    "floor": "5",
+    "busyScale": "1",
+    "timeStamp": "2024-10-21T05:19:38.749Z"
+  },
+  {
+    "floor": "1",
+    "busyScale": "1",
+    "timeStamp": "2024-10-21T05:19:47.793Z"
+  },
+  {
+    "floor": "3",
+    "busyScale": "1",
+    "timeStamp": "2024-10-21T08:52:50.439Z"
+  },
+  {
+    "floor": "4",
+    "busyScale": "4",
+    "timeStamp": "2024-10-21T08:53:12.053Z"
+  },
+  {
+    "floor": "4",
+    "busyScale": "3",
+    "timeStamp": "2024-10-21T08:53:22.718Z"
   }
 ]
